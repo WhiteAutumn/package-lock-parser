@@ -1,9 +1,10 @@
+import os from "os";
 import path from "path";
 import fs from "fs/promises";
 import { expect } from "chai";
 import { parse, fabricate } from "./index.mjs";
 
-const __dirname = path.dirname(import.meta.url.replace("file:///", ""));
+const __dirname = path.dirname(import.meta.url.replace(os.platform() === "win32" ? "file:///" : "file://", ""));
 const testDir = path.join(__dirname, "test");
 
 console.log(import.meta.url);
