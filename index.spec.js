@@ -7,10 +7,6 @@ import { parse, fabricate } from "./index.mjs";
 const __dirname = path.dirname(import.meta.url.replace(os.platform() === "win32" ? "file:///" : "file://", ""));
 const testDir = path.join(__dirname, "test");
 
-console.log(import.meta.url);
-console.log(__dirname);
-console.log(testDir);
-
 const basicPackageLock = fs.readFile(path.resolve(testDir, "basic_package-lock.json"))
   .then(it => JSON.parse(it));
 
