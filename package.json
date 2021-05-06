@@ -1,0 +1,30 @@
+{
+  "name": "package-lock-parser",
+  "version": "0.0.0",
+  "description": "Library to more easily parse package-lock.json files",
+  "type": "module",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "import": "./index.mjs"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "babel index.mjs --out-file dist/index.cjs",
+    "test": "mocha './{,!(node_modules)/**}/*.spec.js'",
+    "test:watch": "nodemon --exec 'npm t'"
+  },
+  "dependencies": {
+    "exceptions-with-cause": "file:d:/Files/Creations/Development/Novel/exceptions-with-cause"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.14.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.14.0",
+    "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7"
+  }
+}
