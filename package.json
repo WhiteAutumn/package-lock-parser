@@ -10,6 +10,10 @@
   "engines": {
     "node": ">=14.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/exceptions-with-cause.git"
+  },
   "scripts": {
     "build": "babel index.mjs --out-file dist/index.cjs",
     "test": "mocha './{,!(node_modules)/**}/*.spec.js'",
