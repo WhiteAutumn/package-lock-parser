@@ -1,34 +1,17 @@
 {
   "name": "package-lock-parser",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Library to more easily parse package-lock.json files",
-  "type": "module",
-  "exports": {
-    "require": "./dist/index.cjs",
-    "import": "./index.mjs"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/WhiteAutumn/package-lock-parser.git"
   },
-  "scripts": {
-    "build": "babel index.mjs --out-file dist/index.cjs",
-    "test": "mocha './{,!(node_modules)/**}/*.spec.js'",
-    "test:watch": "nodemon --exec 'npm t'"
+  "engines": {
+    "node": ">=14.0.0"
   },
+  "scripts": {},
   "dependencies": {
-    "exceptions-with-cause": "^1.0.0"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.13.16",
-    "@babel/core": "^7.14.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.14.0",
-    "chai": "^4.3.4",
-    "cross-env": "^7.0.3",
-    "mocha": "^8.3.2",
-    "nodemon": "^2.0.7"
+    "exceptions-with-cause": "~2.1.0"
   }
 }
