@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { RawLockfile } from './types';
 import { files } from './test-resources/index.test';
-import { parse, synthesize } from './v1';
+import { parse, synth } from './v1';
 
 describe('For v1 lockfiles', () => {
 	describe('the parse() function', () => {
@@ -19,17 +19,17 @@ describe('For v1 lockfiles', () => {
 
 	});
 
-	describe('the synthesize() function', () => {
+	describe('the synth() function', () => {
 
 		it('should return something that is not null or undefined', async () => {
 			const parsed = parse(await files.basic.v1() as RawLockfile);
-			const synthesized = synthesize(parsed);
+			const synthesized = synth(parsed);
 			expect(synthesized).to.not.be.undefined;
 		});
 
 		it('should return synthesized output correct lockfileVersion property', async () => {
 			const parsed = parse(await files.basic.v1() as RawLockfile);
-			const synthesized = synthesize(parsed);
+			const synthesized = synth(parsed);
 			expect(synthesized.lockfileVersion).to.equals(1);
 		});
 
