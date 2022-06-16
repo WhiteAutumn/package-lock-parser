@@ -1,0 +1,15 @@
+root: true
+parser: '@typescript-eslint/parser'
+
+plugins:
+  - '@typescript-eslint'
+
+extends:
+  - 'plugin:@typescript-eslint/recommended'
+
+rules:
+  indent: [warn, tab]
+  eol-last: [warn, always]
+  linebreak-style: [warn, unix]
+  '@typescript-eslint/quotes': [warn, single]
+  '@typescript-eslint/semi': [warn, always]

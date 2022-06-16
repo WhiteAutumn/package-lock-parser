@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    //Target
+    "target": "ES2019",
+    "lib": ["ES2019"],
+    "module": "CommonJS",
+
+    "esModuleInterop": true,
+    "sourceMap": true,
+
+    //Output
+    "outDir": "dist/test",
+  }
+}
