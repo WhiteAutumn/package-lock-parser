@@ -7,3 +7,11 @@ export const parse = (raw: RawLockfile): ParsedLockfile => {
 
 	return parsed;
 };
+
+export const synthesize = (raw: ParsedLockfile): RawLockfile => {
+	const synthesized: RawLockfile = {
+		lockfileVersion: raw.version
+	};
+
+	return synthesized;
+};
