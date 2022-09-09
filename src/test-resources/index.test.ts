@@ -1,10 +1,10 @@
 import path from 'path';
-import fs from 'fs/promises';
+import fs from 'fs';
 
 import { Any } from '../types';
 
 const defineFile = (name: string): () => Promise<Any> => {
-	const file = fs.readFile(path.join('src', 'test-resources', name))
+	const file = fs.promises.readFile(path.join('src', 'test-resources', name))
 		.then(it => it.toString())
 		.then(it => JSON.parse(it));
 
