@@ -21,8 +21,10 @@ describe('For v1 lockfiles', () => {
 		it('should return object with correctly parsed basic package', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
 			expect(parsed).to.have.property('dependencies');
+			
 			const dependencies = parsed.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
 			const module = dependencies!['@package-lock-parser/test-resource-pure'];
 			expect(module).to.have.property('version');
 			expect(module.version).to.equal('1.0.0');
@@ -48,8 +50,10 @@ describe('For v1 lockfiles', () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
 			const synthesized = synth(parsed);
 			expect(synthesized).to.have.property('dependencies');
+
 			const dependencies = synthesized.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+			
 			const module = dependencies!['@package-lock-parser/test-resource-pure'];
 			expect(module.version).to.equal('1.0.0');
 			expect(module.resolved).to.equal('https://registry.npmjs.org/@package-lock-parser/test-resource-pure/-/test-resource-pure-1.0.0.tgz');
