@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { expect } from 'chai';
 
 import { PackageJson, RawLockfileV1 } from './types';
@@ -22,7 +23,7 @@ describe('For v1 lockfiles', () => {
 			expect(parsed).to.have.property('dependencies');
 			const dependencies = parsed.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
-			const module = dependencies['@package-lock-parser/test-resource-pure'];
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
 			expect(module).to.have.property('version');
 			expect(module.version).to.equal('1.0.0');
 		});
@@ -49,7 +50,7 @@ describe('For v1 lockfiles', () => {
 			expect(synthesized).to.have.property('dependencies');
 			const dependencies = synthesized.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
-			const module = dependencies['@package-lock-parser/test-resource-pure'];
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
 			expect(module.version).to.equal('1.0.0');
 			expect(module.resolved).to.equal('https://registry.npmjs.org/@package-lock-parser/test-resource-pure/-/test-resource-pure-1.0.0.tgz');
 			expect(module.integrity).to.equal('sha512-nKkblBoJUPTOq4ZE1fZ5EtrtcfSP6XF/iJgS8IhqHObotn+5nr7g/i6isiEW0ZIVVkp0fJxO1jwKVosOurEUbA==');
