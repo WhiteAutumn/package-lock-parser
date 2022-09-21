@@ -2,24 +2,24 @@
 import { expect } from 'chai';
 
 import { PackageJson, RawLockfileV1 } from './types';
-import { lockfiles, packages } from './test-resources/index.test';
+import { lockfiles } from './test-resources/index.test';
 import { parse, synth } from './v1';
 
 describe('For v1 lockfiles', () => {
 	describe('the parse() function', () => {
 
 		it('should return something that is not null or undefined', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			expect(parsed).to.not.be.undefined;
 		});
 
 		it('should return object containing the correct version property', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			expect(parsed).to.have.property('version').that.equals(1);
 		});
 
 		it('should return object with correctly parsed basic package', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			expect(parsed).to.have.property('dependencies');
 			
 			const dependencies = parsed.dependencies;
@@ -35,19 +35,19 @@ describe('For v1 lockfiles', () => {
 	describe('the synth() function', () => {
 
 		it('should return something that is not null or undefined', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			const synthesized = synth(parsed);
 			expect(synthesized).to.not.be.undefined;
 		});
 
 		it('should return synthesized output with correct lockfileVersion property', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			const synthesized = synth(parsed);
 			expect(synthesized.lockfileVersion).to.equals(1);
 		});
 
 		it('should return synthesized output with correctly synthesized basic package', async () => {
-			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await packages.basic());
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			const synthesized = synth(parsed);
 			expect(synthesized).to.have.property('dependencies');
 

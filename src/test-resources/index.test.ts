@@ -3,28 +3,35 @@ import fs from 'fs';
 
 import { Any } from '../types';
 
-const defineFile = (name: string): () => Promise<Any> => {
-	const file = fs.promises.readFile(path.join('src', 'test-resources', name))
+
+export type LockfileBundle = {
+	v1: () => Promise<Any>;
+	v2: () => Promise<Any>;
+	packagefile: () => Promise<Any>;
+};
+
+const dirname = path.join('.', 'src', 'test-resources');
+
+const loadLockfileBundle = (dir: string): LockfileBundle => {
+	const v1 = fs.promises.readFile(path.join(dirname, dir, 'v1.package-lock.json'))
 		.then(it => it.toString())
 		.then(it => JSON.parse(it));
 
-	return async () => await file;
+	const v2 = fs.promises.readFile(path.join(dirname, dir, 'v2.package-lock.json'))
+		.then(it => it.toString())
+		.then(it => JSON.parse(it));
+
+	const packagefile = fs.promises.readFile(path.join(dirname, dir, 'package.json'))
+		.then(it => it.toString())
+		.then(it => JSON.parse(it));
+
+	return {
+		v1: async () => await v1,
+		v2: async () => await v2,
+		packagefile: async () => await packagefile
+	};
 };
 
-type Versions = 1|2;
-type LockfilesDefinition = Record<string, Record<`v${Versions}`, () => Promise<Any>>>;
-const defineLockfiles = <T extends LockfilesDefinition> (definition: T): T => definition; 
-
-export const lockfiles = defineLockfiles({
-	basic: {
-		v1: defineFile('v1_basic.json'),
-		v2: defineFile('v2_basic.json'),
-	}
-});
-
-type PackagesDefinition<T extends string> = Record<T, () => Promise<Any>>;
-const definePackages = <T extends PackagesDefinition<keyof typeof lockfiles>> (definition: T): T => definition;
-
-export const packages = definePackages({
-	basic: defineFile('v1_basic.package.json')
-});
+export const lockfiles = {
+	basic: loadLockfileBundle('basic')
+};
