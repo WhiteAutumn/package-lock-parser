@@ -1,0 +1,9 @@
+{
+  "name": "@package-lock-parser/test-resource-pure",
+  "version": "1.0.0",
+  "description": "Internal test package used for package-lock-parser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/package-lock-parser.git"
+  }
+}
