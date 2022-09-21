@@ -33,5 +33,6 @@ const loadLockfileBundle = (dir: string): LockfileBundle => {
 };
 
 export const lockfiles = {
-	basic: loadLockfileBundle('basic')
+	basic: loadLockfileBundle('basic'),
+	basicDev: loadLockfileBundle('basic-dev')
 };

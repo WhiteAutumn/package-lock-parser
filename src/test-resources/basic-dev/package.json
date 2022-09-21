@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@package-lock-parser/test-resource-pure": "^1.0.0"
+  }
+}
