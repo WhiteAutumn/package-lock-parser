@@ -30,6 +30,19 @@ describe('For v1 lockfiles', () => {
 			expect(module.version).to.equal('1.0.0');
 		});
 
+		it('should return object with correctly parsed basic package as dev dependency', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.basicDev.v1(), <PackageJson> await lockfiles.basicDev.packagefile());
+			expect(parsed).to.have.property('devDependencies');
+			expect(parsed).to.not.have.property('dependencies');
+
+			const dependencies = parsed.devDependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
+			expect(module).to.have.property('version');
+			expect(module.version).to.equal('1.0.0');
+		});
+
 	});
 
 	describe('the synth() function', () => {

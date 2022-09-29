@@ -14,6 +14,7 @@ export type ParsedPackage = {
 export type ParsedLockfile = {
 	version: number;
 	dependencies?: Record<string, ParsedPackage>;
+	devDependencies?: Record<string, ParsedPackage>;
 };
 
 export type RawPackageV1 = {

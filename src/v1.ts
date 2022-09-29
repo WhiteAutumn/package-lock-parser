@@ -43,6 +43,11 @@ export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockf
 		parsePackages(Object.keys(packagefile.dependencies), raw.dependencies, parsed.dependencies);
 	}
 
+	if (raw.dependencies != null && packagefile.devDependencies != null) {
+		parsed.devDependencies = {};
+		parsePackages(Object.keys(packagefile.devDependencies), raw.dependencies, parsed.devDependencies);
+	}
+
 	return parsed;
 };
 
