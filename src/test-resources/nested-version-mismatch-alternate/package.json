@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@package-lock-parser/test-resource-nested": "^2.0.0",
+    "@package-lock-parser/test-resource-nested-alternate": "^1.0.0"
+  }
+}
