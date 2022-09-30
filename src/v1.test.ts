@@ -109,5 +109,37 @@ describe('For v1 lockfiles', () => {
 			expect(module.dev).to.equal(true);
 		});
 
+		it('should synthesize parsed package as regular dependency when moved from dev dependencies', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.basicDev.v1(), <PackageJson> await lockfiles.basicDev.packagefile());
+			parsed.dependencies = {};
+			parsed.dependencies['@package-lock-parser/test-resource-pure'] = parsed.devDependencies['@package-lock-parser/test-resource-pure'];
+			delete parsed.devDependencies['@package-lock-parser/test-resource-pure'];
+
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
+			expect(module).to.not.have.property('dev');
+		});
+
+		it('should synthesize parsed package as dev dependency when moved from regular dependencies', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
+			parsed.devDependencies = {};
+			parsed.devDependencies['@package-lock-parser/test-resource-pure'] = parsed.dependencies['@package-lock-parser/test-resource-pure'];
+			delete parsed.dependencies['@package-lock-parser/test-resource-pure'];
+
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
+			expect(module.dev).to.equal(true);
+		});
+
 	});
 });
