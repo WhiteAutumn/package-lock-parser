@@ -26,6 +26,8 @@ const parsePackages = (packageNames: string[], rawPackages: RawDependencies, par
 			version: supported.version
 		};
 
+		Object.defineProperty(parsedPackage, 'name', { value: parsedPackage.name, writable: false });
+
 		(<InternalParsedPackage> parsedPackage)[INTERNAL] = {
 			unsupported
 		};

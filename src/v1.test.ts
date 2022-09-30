@@ -43,6 +43,20 @@ describe('For v1 lockfiles', () => {
 			expect(module.name).to.equal('@package-lock-parser/test-resource-pure');
 		});
 
+		it('should return parsed package with immutable name property', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
+			expect(parsed).to.have.property('dependencies');
+
+			const dependencies = parsed.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
+			expect(module).to.have.property('name');
+			//@ts-expect-error The name property is marked as read-only so assigning to it should give an error
+			module.name = 'something-else';
+			expect(module.name).to.equal('@package-lock-parser/test-resource-pure');
+		});
+
 		it('should return result with dev dependency in the correct location', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basicDev.v1(), <PackageJson> await lockfiles.basicDev.packagefile());
 			expect(parsed).to.have.property('devDependencies');

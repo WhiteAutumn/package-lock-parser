@@ -8,7 +8,7 @@ export type PackageJson = {
 };
 
 export type ParsedPackage = {
-	name: string;
+	readonly name: string;
 	version: string;
 };
 
