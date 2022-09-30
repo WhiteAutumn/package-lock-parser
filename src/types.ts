@@ -8,6 +8,7 @@ export type PackageJson = {
 };
 
 export type ParsedPackage = {
+	name: string;
 	version: string;
 };
 
@@ -21,6 +22,7 @@ export type RawPackageV1 = {
 	version: string;
 	resolved: string;
 	integrity: string;
+	dev?: boolean;
 };
 
 export type RawLockfileV1 = {

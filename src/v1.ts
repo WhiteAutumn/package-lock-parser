@@ -22,6 +22,7 @@ const parsePackages = (packageNames: string[], rawPackages: RawDependencies, par
 
 		const [supported, unsupported] = pick(rawPackage, 'version');
 		const parsedPackage: ParsedPackage = {
+			name: packageName,
 			version: supported.version
 		};
 
@@ -66,8 +67,17 @@ export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
 	};
 
 	if (parsed.dependencies != null) {
-		synthesized.dependencies = {};
+		if (synthesized.dependencies == null) {
+			synthesized.dependencies = {};
+		}
 		synthPackages(parsed.dependencies, synthesized.dependencies);
+	}
+
+	if (parsed.devDependencies != null) {
+		if (synthesized.dependencies == null) {
+			synthesized.dependencies = {};
+		}
+		synthPackages(parsed.devDependencies, synthesized.dependencies);
 	}
 
 	return synthesized;
