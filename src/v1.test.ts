@@ -123,7 +123,7 @@ describe('For v1 lockfiles', () => {
 			expect(module.dev).to.equal(true);
 		});
 
-		it('should synthesize parsed package as regular dependency when moved from dev dependencies', async () => {
+		it('should synthesize package as regular dependency when moved from dev dependencies', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basicDev.v1(), <PackageJson> await lockfiles.basicDev.packagefile());
 			parsed.dependencies = {};
 			parsed.dependencies['@package-lock-parser/test-resource-pure'] = parsed.devDependencies['@package-lock-parser/test-resource-pure'];
@@ -139,7 +139,7 @@ describe('For v1 lockfiles', () => {
 			expect(module).to.not.have.property('dev');
 		});
 
-		it('should synthesize parsed package as dev dependency when moved from regular dependencies', async () => {
+		it('should synthesize package as dev dependency when moved from regular dependencies', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			parsed.devDependencies = {};
 			parsed.devDependencies['@package-lock-parser/test-resource-pure'] = parsed.dependencies['@package-lock-parser/test-resource-pure'];
@@ -155,7 +155,7 @@ describe('For v1 lockfiles', () => {
 			expect(module.dev).to.equal(true);
 		});
 
-		it('should synthesize parsed package that is a dependency of another', async () => {
+		it('should synthesize package that is a dependency of another', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.nested.v1(), <PackageJson> await lockfiles.nested.packagefile());
 			const synthesized = synth(parsed);
 			expect(synthesized).to.have.property('dependencies');
