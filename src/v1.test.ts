@@ -208,5 +208,28 @@ describe('For v1 lockfiles', () => {
 			expect(testResourcePureNested.version).to.equal('2.0.0');
 		});
 
+		it('should synthesize packages of differing versions from different packages', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedVersionMismatchAlternate.v1(), <PackageJson> await lockfiles.nestedVersionMismatchAlternate.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested-alternate');
+
+			const testResourcePure = dependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePure.version).to.equal('2.0.0');
+
+			const testResourceAlternate = dependencies['@package-lock-parser/test-resource-nested-alternate']!;
+			expect(testResourceAlternate).to.have.property('dependencies');
+
+			const testResourceAlternateDependencies = testResourceAlternate.dependencies;
+			expect(testResourceAlternateDependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePureAlternate = testResourceAlternateDependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePureAlternate.version).to.equal('1.0.0');
+		});
+
 	});
 });
