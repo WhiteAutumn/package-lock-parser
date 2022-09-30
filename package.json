@@ -11,12 +11,12 @@
     "node": ">=12.20.0"
   },
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
-    "lint:strict": "eslint . --max-warnings=0",
+    "lint": "eslint . --color",
+    "lint:fix": "eslint --fix . --color",
+    "lint:strict": "eslint . --color --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "mocha --require @esbuild-kit/cjs-loader  'src/**/*.ts'",
-    "test:watch": "mocha --require @esbuild-kit/cjs-loader --watch --reporter min 'src/**/*.ts'",
+    "test": "mocha --require @esbuild-kit/cjs-loader --colors 'src/**/*.ts'",
+    "test:watch": "mocha --require @esbuild-kit/cjs-loader --colors --watch --reporter min 'src/**/*.ts'",
     "test:coverage": "tsc --incremental && c8 --all --src src mocha 'dist/test/**/*.test.js'"
   },
   "dependencies": {
