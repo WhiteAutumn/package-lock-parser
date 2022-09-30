@@ -66,6 +66,20 @@ describe('For v1 lockfiles', () => {
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
 		});
 
+		it('should return parsed package that is a dependency of another', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nested.v1(), <PackageJson> await lockfiles.nested.packagefile());
+			expect(parsed).to.have.property('dependencies');
+
+			const dependencies = parsed.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+
+			const module = dependencies!['@package-lock-parser/test-resource-nested'];
+			expect(module).to.have.property('dependencies');
+
+			const moduleDependencies = module.dependencies;
+			expect(moduleDependencies).to.have.property('@package-lock-parser/test-resource-pure');
+		});
+
 	});
 
 	describe('the synth() function', () => {
@@ -139,6 +153,16 @@ describe('For v1 lockfiles', () => {
 
 			const module = dependencies!['@package-lock-parser/test-resource-pure'];
 			expect(module.dev).to.equal(true);
+		});
+
+		it('should synthesize parsed package that is a dependency of another', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nested.v1(), <PackageJson> await lockfiles.nested.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
 		});
 
 	});

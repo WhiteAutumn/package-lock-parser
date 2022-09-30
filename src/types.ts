@@ -10,6 +10,8 @@ export type PackageJson = {
 export type ParsedPackage = {
 	readonly name: string;
 	version: string;
+	dependencies?: Record<string, ParsedPackage>;
+	devDependencies?: Record<string, ParsedPackage>;
 };
 
 export type ParsedLockfile = {
@@ -23,6 +25,7 @@ export type RawPackageV1 = {
 	resolved: string;
 	integrity: string;
 	dev?: boolean;
+	requires?: Record<string, string>;
 };
 
 export type RawLockfileV1 = {

@@ -11,12 +11,14 @@ type InternalParsedPackage = ParsedPackage & {
 
 type RawDependencies = Record<string, RawPackageV1>;
 type ParsedDependencies = Record<string, ParsedPackage>;
+type ContinuationTask = () => void;
+
 type ParseResult = {
 	dependencies?: ParsedDependencies;
 	devDependencies?: ParsedDependencies;
 };
 
-const parsePackages = (packageNames: string[], rawPackages: RawDependencies): ParseResult => {
+const parsePackages = (continuationTasks: ContinuationTask[], packageNames: string[], rawPackages: RawDependencies): ParseResult => {
 	let dependencies: ParsedDependencies;
 	let devDependencies: ParsedDependencies;
 
@@ -62,6 +64,14 @@ const parsePackages = (packageNames: string[], rawPackages: RawDependencies): Pa
 			} break;
 
 		}
+
+		if (rawPackage.requires != null) {
+			continuationTasks.push(() => {
+				const requiredPackageNames = Object.keys(rawPackage.requires);
+				const requiredDependencies = parsePackages(continuationTasks, requiredPackageNames, rawPackages);
+				Object.assign(parsedPackage, requiredDependencies);
+			});
+		}
 	}
 
 	const result: ParseResult = {};
@@ -81,12 +91,50 @@ export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockf
 		...Object.keys(packagefile.devDependencies ?? {})
 	];
 
+	const tasks: ContinuationTask[] = [];
+
 	const parsed: ParsedLockfile = {
 		version: raw.lockfileVersion,
-		...parsePackages(packages, raw.dependencies)
+		...parsePackages(tasks, packages, raw.dependencies)
 	};
 
+	for (let i = 0; i < tasks.length; i++) {
+		const task = tasks[i];
+		task();
+	}
+
 	return parsed;
+};
+
+type PackageType = 'regular' | 'dev' | 'peer';
+
+const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[], input: ParsedDependencies, output: RawDependencies) => {
+	for (const [name, parsed] of Object.entries(input)) {
+		output[name] = <RawPackageV1> {
+			version: parsed.version,
+			...(<InternalParsedPackage> parsed)[INTERNAL].unsupported
+		};
+
+		switch (type) {
+
+			case 'dev': {
+				output[name].dev = true;
+			} break;
+
+		}
+
+		if (parsed.dependencies != null) {
+			continuationTasks.push(() => {
+				synthPackages('regular', continuationTasks, parsed.dependencies, output);
+			});
+		}
+
+		if (parsed.devDependencies != null) {
+			continuationTasks.push(() => {
+				synthPackages('dev', continuationTasks, parsed.dependencies, output);
+			});
+		}
+	}
 };
 
 export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
@@ -94,36 +142,25 @@ export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
 		lockfileVersion: parsed.version
 	};
 
-	type PackageType = 'regular' | 'dev' | 'peer';
-	const synthPackages = (type: PackageType, input: ParsedDependencies, output: RawDependencies) => {
-		for (const [name, parsed] of Object.entries(input)) {
-			output[name] = <RawPackageV1> {
-				version: parsed.version,
-				...(<InternalParsedPackage> parsed)[INTERNAL].unsupported
-			};
-
-			switch (type) {
-
-				case 'dev': {
-					output[name].dev = true;
-				} break;
-
-			}
-		}
-	};
+	const tasks: ContinuationTask[] = [];
 
 	if (parsed.dependencies != null) {
 		if (synthesized.dependencies == null) {
 			synthesized.dependencies = {};
 		}
-		synthPackages('regular', parsed.dependencies, synthesized.dependencies);
+		synthPackages('regular', tasks, parsed.dependencies, synthesized.dependencies);
 	}
 
 	if (parsed.devDependencies != null) {
 		if (synthesized.dependencies == null) {
 			synthesized.dependencies = {};
 		}
-		synthPackages('dev', parsed.devDependencies, synthesized.dependencies);
+		synthPackages('dev', tasks, parsed.devDependencies, synthesized.dependencies);
+	}
+
+	for (let i = 0; i < tasks.length; i++) {
+		const task = tasks[i];
+		task();
 	}
 
 	return synthesized;
