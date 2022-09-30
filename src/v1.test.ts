@@ -107,10 +107,10 @@ describe('For v1 lockfiles', () => {
 
 			const dependencies = parsed.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
-			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested-alternate');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
 
 			const rootDependantPackage = dependencies['@package-lock-parser/test-resource-pure']!;
-			const nestedDependantPackage = dependencies['@package-lock-parser/test-resource-nested-alternate']!.dependencies['@package-lock-parser/test-resource-pure']!;
+			const nestedDependantPackage = dependencies['@package-lock-parser/test-resource-nested']!.dependencies['@package-lock-parser/test-resource-pure']!;
 
 			expect(rootDependantPackage).to.equal(nestedDependantPackage);
 		});

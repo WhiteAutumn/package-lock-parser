@@ -1,6 +1,6 @@
 {
   "dependencies": {
     "@package-lock-parser/test-resource-pure": "^1.0.0",
-    "@package-lock-parser/test-resource-nested-alternate": "^1.0.0"
+    "@package-lock-parser/test-resource-nested": "^1.0.0"
   }
 }
