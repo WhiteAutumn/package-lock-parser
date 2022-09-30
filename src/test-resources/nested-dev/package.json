@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@package-lock-parser/test-resource-nested": "^1.0.0"
+  },
+  "volta": {
+    "node": "14.20.1"
+  }
+}
