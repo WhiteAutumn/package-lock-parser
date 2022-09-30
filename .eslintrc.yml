@@ -8,8 +8,14 @@ extends:
   - 'plugin:@typescript-eslint/recommended'
 
 rules:
-  indent: [warn, tab]
+  # General editor rules
+  indent: [warn, tab, { SwitchCase: 1 }]
   eol-last: [warn, always]
   linebreak-style: [warn, unix]
+
+  # Language style rules
+  no-var: error
+  prefer-const: warn
   '@typescript-eslint/quotes': [warn, single]
   '@typescript-eslint/semi': [warn, always]
+  '@typescript-eslint/member-delimiter-style': warn
