@@ -101,6 +101,20 @@ describe('For v1 lockfiles', () => {
 			expect(testResourcePureNested.version).to.equal('2.0.0');
 		});
 
+		it('should only create one object for packages with multiple dependents', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedVersionMatch.v1(), <PackageJson> await lockfiles.nestedVersionMatch.packagefile());
+			expect(parsed).to.have.property('dependencies');
+
+			const dependencies = parsed.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested-alternate');
+
+			const rootDependantPackage = dependencies['@package-lock-parser/test-resource-pure']!;
+			const nestedDependantPackage = dependencies['@package-lock-parser/test-resource-nested-alternate']!.dependencies['@package-lock-parser/test-resource-pure']!;
+
+			expect(rootDependantPackage).to.equal(nestedDependantPackage);
+		});
+
 	});
 
 	describe('the synth() function', () => {

@@ -13,12 +13,16 @@ type RawDependencies = Record<string, RawPackageV1>;
 type ParsedDependencies = Record<string, ParsedPackage>;
 type ContinuationTask = () => void;
 
+type ParsingWorkbench = {
+	continuation: ContinuationTask[];
+	packageLookup: Record<string, ParsedPackage>;
+};
 type ParseResult = {
 	dependencies?: ParsedDependencies;
 	devDependencies?: ParsedDependencies;
 };
 
-const parsePackages = (continuationTasks: ContinuationTask[], packageNames: string[], rawPackages: RawDependencies, prioritizedPackages?: RawDependencies | undefined): ParseResult => {
+const parsePackages = (workbench: ParsingWorkbench, packageNames: string[], rawPackages: RawDependencies, prioritizedPackages?: RawDependencies | undefined): ParseResult => {
 	let dependencies: ParsedDependencies;
 	let devDependencies: ParsedDependencies;
 
@@ -53,14 +57,23 @@ const parsePackages = (continuationTasks: ContinuationTask[], packageNames: stri
 			unsupported
 		};
 
+		const packageLookupKey = parsedPackage.name + parsedPackage.version;
+
 		switch (true) {
 
 			case (rawPackage.dev === true): {
 				if (devDependencies == null) {
 					devDependencies = {};
 				}
-	
-				devDependencies[packageName] = parsedPackage;
+
+				if (workbench.packageLookup[packageLookupKey] != null) {
+					devDependencies[packageName] = workbench.packageLookup[packageLookupKey];
+				}
+				else {
+					devDependencies[packageName] = parsedPackage;
+					workbench.packageLookup[packageLookupKey] = parsedPackage;
+				}
+				
 			} break;
 
 			default: {
@@ -68,15 +81,22 @@ const parsePackages = (continuationTasks: ContinuationTask[], packageNames: stri
 					dependencies = {};
 				}
 	
-				dependencies[packageName] = parsedPackage;
+				if (workbench.packageLookup[packageLookupKey] != null) {
+					dependencies[packageName] = workbench.packageLookup[packageLookupKey];
+				}
+				else {
+					dependencies[packageName] = parsedPackage;
+					workbench.packageLookup[packageLookupKey] = parsedPackage;
+				}
+				
 			} break;
 
 		}
 
 		if (rawPackage.requires != null) {
-			continuationTasks.push(() => {
+			workbench.continuation.push(() => {
 				const requiredPackageNames = Object.keys(rawPackage.requires);
-				const requiredDependencies = parsePackages(continuationTasks, requiredPackageNames, rawPackages, rawPackage.dependencies);
+				const requiredDependencies = parsePackages(workbench, requiredPackageNames, rawPackages, rawPackage.dependencies);
 				Object.assign(parsedPackage, requiredDependencies);
 			});
 		}
@@ -99,15 +119,18 @@ export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockf
 		...Object.keys(packagefile.devDependencies ?? {})
 	];
 
-	const tasks: ContinuationTask[] = [];
+	const workbench: ParsingWorkbench = {
+		continuation: [],
+		packageLookup: {}
+	};
 
 	const parsed: ParsedLockfile = {
 		version: raw.lockfileVersion,
-		...parsePackages(tasks, packages, raw.dependencies)
+		...parsePackages(workbench, packages, raw.dependencies)
 	};
 
-	for (let i = 0; i < tasks.length; i++) {
-		const task = tasks[i];
+	for (let i = 0; i < workbench.continuation.length; i++) {
+		const task = workbench.continuation[i];
 		task();
 	}
 
