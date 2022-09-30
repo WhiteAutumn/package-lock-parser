@@ -80,6 +80,27 @@ describe('For v1 lockfiles', () => {
 			expect(moduleDependencies).to.have.property('@package-lock-parser/test-resource-pure');
 		});
 
+		it('should parse packages of differing versions where one is a dependency of root and another is a dependency of a package', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedVersionMismatch.v1(), <PackageJson> await lockfiles.nestedVersionMismatch.packagefile());
+			expect(parsed).to.have.property('dependencies');
+
+			const dependencies = parsed.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+
+			const testResourcePure = dependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePure.version).to.equal('1.0.0');
+
+			const testResourceNested = dependencies['@package-lock-parser/test-resource-nested']!;
+			expect(testResourceNested).to.have.property('dependencies');
+
+			const testResourceNestedDependencies = testResourceNested.dependencies;
+			expect(testResourceNestedDependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePureNested = testResourceNestedDependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePureNested.version).to.equal('2.0.0');
+		});
+
 	});
 
 	describe('the synth() function', () => {
@@ -163,6 +184,28 @@ describe('For v1 lockfiles', () => {
 			const dependencies = synthesized.dependencies;
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
 			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+		});
+
+		it('should synthesize packages of differing versions where one is a dependency of root and another is a dependency of a package', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedVersionMismatch.v1(), <PackageJson> await lockfiles.nestedVersionMismatch.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePure = dependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePure.version).to.equal('1.0.0');
+
+			const testResourceNested = dependencies['@package-lock-parser/test-resource-nested']!;
+			expect(testResourceNested).to.have.property('dependencies');
+
+			const testResourceNestedDependencies = testResourceNested.dependencies;
+			expect(testResourceNestedDependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePureNested = testResourceNestedDependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePureNested.version).to.equal('2.0.0');
 		});
 
 	});

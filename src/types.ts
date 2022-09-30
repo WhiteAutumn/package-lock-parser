@@ -26,6 +26,7 @@ export type RawPackageV1 = {
 	integrity: string;
 	dev?: boolean;
 	requires?: Record<string, string>;
+	dependencies?: Record<string, RawPackageV1>;
 };
 
 export type RawLockfileV1 = {

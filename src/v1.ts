@@ -18,20 +18,28 @@ type ParseResult = {
 	devDependencies?: ParsedDependencies;
 };
 
-const parsePackages = (continuationTasks: ContinuationTask[], packageNames: string[], rawPackages: RawDependencies): ParseResult => {
+const parsePackages = (continuationTasks: ContinuationTask[], packageNames: string[], rawPackages: RawDependencies, prioritizedPackages?: RawDependencies | undefined): ParseResult => {
 	let dependencies: ParsedDependencies;
 	let devDependencies: ParsedDependencies;
 
 	for (const packageName of packageNames) {
 		
-		const rawPackage = rawPackages[packageName];
-		if (rawPackage == null) {
-			throw new Error('Given package.json and package-lock.json files are out of sync!');
+		let rawPackage: RawPackageV1;
+		if (prioritizedPackages?.[packageName] != null) {
+			rawPackage = prioritizedPackages[packageName];
+		}
+		else {
+			if (rawPackages[packageName] == null) {
+				throw new Error('Given package.json and package-lock.json files are out of sync!');
+			}
+
+			rawPackage = rawPackages[packageName];
 		}
 
 		const [supported, unsupported] = pick(rawPackage,
 			'version',
-			'dev'
+			'dev',
+			'dependencies'
 		);
 
 		const parsedPackage: ParsedPackage = {
@@ -68,7 +76,7 @@ const parsePackages = (continuationTasks: ContinuationTask[], packageNames: stri
 		if (rawPackage.requires != null) {
 			continuationTasks.push(() => {
 				const requiredPackageNames = Object.keys(rawPackage.requires);
-				const requiredDependencies = parsePackages(continuationTasks, requiredPackageNames, rawPackages);
+				const requiredDependencies = parsePackages(continuationTasks, requiredPackageNames, rawPackages, rawPackage.dependencies);
 				Object.assign(parsedPackage, requiredDependencies);
 			});
 		}
@@ -108,30 +116,46 @@ export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockf
 
 type PackageType = 'regular' | 'dev' | 'peer';
 
-const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[], input: ParsedDependencies, output: RawDependencies) => {
+const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[], input: ParsedDependencies, output: RawDependencies, parent?: RawPackageV1 | undefined) => {
 	for (const [name, parsed] of Object.entries(input)) {
-		output[name] = <RawPackageV1> {
+
+		const synthPackage = <RawPackageV1> {
 			version: parsed.version,
 			...(<InternalParsedPackage> parsed)[INTERNAL].unsupported
 		};
 
+		if (output[name] != null) {
+			if (parent == null) {
+				throw new Error('A parent was not provided when synthesizing, this is highly unexpected behavior!');
+			}
+
+			if (parent.dependencies == null) {
+				parent.dependencies = {};
+			}
+
+			parent.dependencies[name] = synthPackage;
+		}
+		else {
+			output[name] = synthPackage;
+		}
+
 		switch (type) {
 
 			case 'dev': {
-				output[name].dev = true;
+				synthPackage.dev = true;
 			} break;
 
 		}
 
 		if (parsed.dependencies != null) {
 			continuationTasks.push(() => {
-				synthPackages('regular', continuationTasks, parsed.dependencies, output);
+				synthPackages('regular', continuationTasks, parsed.dependencies, output, synthPackage);
 			});
 		}
 
 		if (parsed.devDependencies != null) {
 			continuationTasks.push(() => {
-				synthPackages('dev', continuationTasks, parsed.dependencies, output);
+				synthPackages('dev', continuationTasks, parsed.dependencies, output, synthPackage);
 			});
 		}
 	}
