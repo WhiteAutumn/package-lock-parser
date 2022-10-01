@@ -60,6 +60,7 @@ const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseRes
 		};
 
 		Object.defineProperty(parsedPackage, 'name', { value: parsedPackage.name, writable: false });
+		Object.defineProperty(parsedPackage, 'version', { value: parsedPackage.version, writable: false });
 
 		(<InternalParsedPackage> parsedPackage)[INTERNAL] = {
 			unsupported

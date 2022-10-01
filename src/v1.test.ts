@@ -31,6 +31,20 @@ describe('For v1 lockfiles', () => {
 			expect(module.version).to.equal('1.0.0');
 		});
 
+		it('should return parsed package with immutable name property', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
+			expect(parsed).to.have.property('dependencies');
+
+			const dependencies = parsed.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const module = dependencies!['@package-lock-parser/test-resource-pure'];
+			expect(module).to.have.property('version');
+			//@ts-expect-error The version property is marked as read-only so assigning to it should give an error
+			module.version = 'something-else';
+			expect(module.version).to.equal('1.0.0');
+		});
+
 		it('should return parsed package with correct name property', async () => {
 			const parsed = parse(<RawLockfileV1> await lockfiles.basic.v1(), <PackageJson> await lockfiles.basic.packagefile());
 			expect(parsed).to.have.property('dependencies');
