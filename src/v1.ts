@@ -21,23 +21,30 @@ type ParseResult = {
 	dependencies?: ParsedDependencies;
 	devDependencies?: ParsedDependencies;
 };
+type ParseInput = {
+	packageNames: string[];
+	packageData: RawDependencies;
+	packageDataPrioritized?: RawDependencies | undefined;
+};
 
-const parsePackages = (workbench: ParsingWorkbench, packageNames: string[], rawPackages: RawDependencies, prioritizedPackages?: RawDependencies | undefined): ParseResult => {
+const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseResult => {
+	const { packageNames, packageData, packageDataPrioritized } = input;
+
 	let dependencies: ParsedDependencies;
 	let devDependencies: ParsedDependencies;
 
 	for (const packageName of packageNames) {
 		
 		let rawPackage: RawPackageV1;
-		if (prioritizedPackages?.[packageName] != null) {
-			rawPackage = prioritizedPackages[packageName];
+		if (packageDataPrioritized?.[packageName] != null) {
+			rawPackage = packageDataPrioritized[packageName];
 		}
 		else {
-			if (rawPackages[packageName] == null) {
+			if (packageData[packageName] == null) {
 				throw new Error('Given package.json and package-lock.json files are out of sync!');
 			}
 
-			rawPackage = rawPackages[packageName];
+			rawPackage = packageData[packageName];
 		}
 
 		const [supported, unsupported] = pick(rawPackage,
@@ -96,7 +103,11 @@ const parsePackages = (workbench: ParsingWorkbench, packageNames: string[], rawP
 		if (rawPackage.requires != null) {
 			workbench.continuation.push(() => {
 				const requiredPackageNames = Object.keys(rawPackage.requires);
-				const requiredDependencies = parsePackages(workbench, requiredPackageNames, rawPackages, rawPackage.dependencies);
+				const requiredDependencies = parsePackages(workbench, {
+					packageNames: requiredPackageNames,
+					packageData: packageData,
+					packageDataPrioritized: rawPackage.dependencies
+				});
 				Object.assign(parsedPackage, requiredDependencies);
 			});
 		}
@@ -113,7 +124,7 @@ const parsePackages = (workbench: ParsingWorkbench, packageNames: string[], rawP
 	return result;
 };
 
-export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockfile => {
+export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): ParsedLockfile => {
 	const packages = [
 		...Object.keys(packagefile.dependencies ?? {}),
 		...Object.keys(packagefile.devDependencies ?? {})
@@ -125,8 +136,11 @@ export const parse = (raw: RawLockfileV1, packagefile: PackageJson): ParsedLockf
 	};
 
 	const parsed: ParsedLockfile = {
-		version: raw.lockfileVersion,
-		...parsePackages(workbench, packages, raw.dependencies)
+		version: lockfile.lockfileVersion,
+		...parsePackages(workbench, {
+			packageNames: packages,
+			packageData: lockfile.dependencies
+		})
 	};
 
 	for (let i = 0; i < workbench.continuation.length; i++) {
