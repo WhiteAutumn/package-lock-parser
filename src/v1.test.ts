@@ -323,4 +323,20 @@ describe('For v1 lockfiles', () => {
 		});
 
 	});
+
+	describe('the combined functionality', () => {
+
+		it('should for each lockfile in test resource synthesize the same lockfile as parsed', async () => {
+			for (const { v1, packagefile } of Object.values(lockfiles)) {
+				const [v1Awaited, packagefileAwaited] = await Promise.all([v1(), packagefile()]);
+				
+				const expected = v1Awaited;
+				const parsed = parse(<RawLockfileV1> v1Awaited, <PackageJson> packagefileAwaited);
+				const actual = synth(parsed);
+
+				expect(actual).to.deep.equal(expected);
+			}
+		});
+
+	});
 });

@@ -32,4 +32,5 @@ export type RawPackageV1 = {
 export type RawLockfileV1 = {
 	lockfileVersion: number;
 	dependencies?: Record<string, RawPackageV1>;
+	requires?: boolean;
 };

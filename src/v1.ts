@@ -9,6 +9,12 @@ type InternalParsedPackage = ParsedPackage & {
 	};
 };
 
+type InternalParsedLockfile = ParsedLockfile & {
+	[INTERNAL]: {
+		unsupported: Record<string, unknown>;
+	};
+};
+
 type RawDependencies = Record<string, RawPackageV1>;
 type ParsedDependencies = Record<string, ParsedPackage>;
 type ContinuationTask = () => void;
@@ -156,6 +162,12 @@ export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): Parsed
 		})
 	};
 
+	(<InternalParsedLockfile> parsed)[INTERNAL] = {
+		unsupported: {
+			requires: lockfile.requires
+		}
+	};
+
 	for (let i = 0; i < workbench.continuation.length; i++) {
 		const task = workbench.continuation[i];
 		task();
@@ -230,7 +242,8 @@ const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
 
 export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
 	const synthesized: RawLockfileV1 = {
-		lockfileVersion: parsed.version
+		lockfileVersion: parsed.version,
+		...(<InternalParsedLockfile> parsed)[INTERNAL].unsupported
 	};
 
 	const workbench: SynthWorkbench = {
