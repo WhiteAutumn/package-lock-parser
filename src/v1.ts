@@ -1,3 +1,4 @@
+/*
 import { PackageJson, ParsedLockfile, ParsedPackage, LockfileV1, LockfilePackageV1 } from './util/types';
 import { pick } from './util/misc';
 
@@ -280,3 +281,4 @@ export const synth = (parsed: ParsedLockfile): LockfileV1 => {
 
 	return synthesized;
 };
+*/

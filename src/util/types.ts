@@ -5,32 +5,40 @@ export type Any = Record<Keys, unknown>;
 export type PackageJson = {
 	dependencies?: Record<string, string>;
 	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
 };
 
+export type LockfilePackages = Record<string, LockfilePackageV1>;
+
 export type LockfileV1 = {
-	lockfileVersion: number;
-	dependencies?: Record<string, LockfilePackageV1>;
 	requires?: boolean;
+	lockfileVersion: number;
+	dependencies?: LockfilePackages;
 };
 
 export type LockfilePackageV1 = {
-	version: string;
-	resolved: string;
-	integrity: string;
+	version?: string;
+	resolved?: string;
+	integrity?: string;
 	dev?: boolean;
+	peer?: boolean;
+
 	requires?: Record<string, string>;
-	dependencies?: Record<string, LockfilePackageV1>;
+	dependencies?: LockfilePackages;
 };
+
+export type ParsedPackages = Record<string, ParsedPackage>;
 
 export type ParsedPackage = {
 	readonly name: string;
 	readonly version: string;
-	dependencies?: Record<string, ParsedPackage>;
-	devDependencies?: Record<string, ParsedPackage>;
+	dependencies: ParsedPackages;
+	devDependencies: ParsedPackages;
 };
 
 export type ParsedLockfile = {
 	version: number;
-	dependencies?: Record<string, ParsedPackage>;
-	devDependencies?: Record<string, ParsedPackage>;
+	dependencies: ParsedPackages;
+	devDependencies: ParsedPackages;
+	peerDependencies: ParsedPackages;
 };
