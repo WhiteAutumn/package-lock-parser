@@ -273,5 +273,28 @@ describe('For v1 lockfiles', () => {
 			expect(testResourceNested.dev).to.equal(true);
 		});
 
+		it('should synthesize package with correct dev flag where the package has one regular dependant and one dev dependant', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedMixedDev.v1(), <PackageJson> await lockfiles.nestedMixedDev.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePure = dependencies['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePure).to.not.have.property('dev');
+
+
+			const parsedAlternate = parse(<RawLockfileV1> await lockfiles.nestedMixedDevReverse.v1(), <PackageJson> await lockfiles.nestedMixedDevReverse.packagefile());
+			const synthesizedAlternate = synth(parsedAlternate);
+			expect(synthesizedAlternate).to.have.property('dependencies');
+
+			const dependenciesAlternate = synthesizedAlternate.dependencies;
+			expect(dependenciesAlternate).to.have.property('@package-lock-parser/test-resource-pure');
+
+			const testResourcePureAlternate = dependenciesAlternate['@package-lock-parser/test-resource-pure']!;
+			expect(testResourcePureAlternate).to.not.have.property('dev');
+		});
+
 	});
 });
