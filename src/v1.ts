@@ -22,13 +22,14 @@ type ParseResult = {
 	devDependencies?: ParsedDependencies;
 };
 type ParseInput = {
+	isRoot: boolean;
 	packageNames: string[];
 	packageData: RawDependencies;
 	packageDataPrioritized?: RawDependencies | undefined;
 };
 
 const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseResult => {
-	const { packageNames, packageData, packageDataPrioritized } = input;
+	const { isRoot, packageNames, packageData, packageDataPrioritized } = input;
 
 	let dependencies: ParsedDependencies;
 	let devDependencies: ParsedDependencies;
@@ -65,37 +66,46 @@ const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseRes
 		};
 
 		const packageLookupKey = parsedPackage.name + parsedPackage.version;
+		const saveRegularDependency = () => {
+			if (dependencies == null) {
+				dependencies = {};
+			}
+
+			if (workbench.packageLookup[packageLookupKey] != null) {
+				dependencies[packageName] = workbench.packageLookup[packageLookupKey];
+			}
+			else {
+				dependencies[packageName] = parsedPackage;
+				workbench.packageLookup[packageLookupKey] = parsedPackage;
+			}
+		};
+		const saveDevDependency = () => {
+			if (devDependencies == null) {
+				devDependencies = {};
+			}
+
+			if (workbench.packageLookup[packageLookupKey] != null) {
+				devDependencies[packageName] = workbench.packageLookup[packageLookupKey];
+			}
+			else {
+				devDependencies[packageName] = parsedPackage;
+				workbench.packageLookup[packageLookupKey] = parsedPackage;
+			}
+		};
 
 		switch (true) {
 
 			case (rawPackage.dev === true): {
-				if (devDependencies == null) {
-					devDependencies = {};
-				}
-
-				if (workbench.packageLookup[packageLookupKey] != null) {
-					devDependencies[packageName] = workbench.packageLookup[packageLookupKey];
+				if (isRoot) {
+					saveDevDependency();
 				}
 				else {
-					devDependencies[packageName] = parsedPackage;
-					workbench.packageLookup[packageLookupKey] = parsedPackage;
+					saveRegularDependency();
 				}
-				
 			} break;
 
 			default: {
-				if (dependencies == null) {
-					dependencies = {};
-				}
-	
-				if (workbench.packageLookup[packageLookupKey] != null) {
-					dependencies[packageName] = workbench.packageLookup[packageLookupKey];
-				}
-				else {
-					dependencies[packageName] = parsedPackage;
-					workbench.packageLookup[packageLookupKey] = parsedPackage;
-				}
-				
+				saveRegularDependency();
 			} break;
 
 		}
@@ -104,6 +114,7 @@ const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseRes
 			workbench.continuation.push(() => {
 				const requiredPackageNames = Object.keys(rawPackage.requires);
 				const requiredDependencies = parsePackages(workbench, {
+					isRoot: false,
 					packageNames: requiredPackageNames,
 					packageData: packageData,
 					packageDataPrioritized: rawPackage.dependencies
@@ -138,6 +149,7 @@ export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): Parsed
 	const parsed: ParsedLockfile = {
 		version: lockfile.lockfileVersion,
 		...parsePackages(workbench, {
+			isRoot: true,
 			packageNames: packages,
 			packageData: lockfile.dependencies
 		})
@@ -152,16 +164,27 @@ export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): Parsed
 };
 
 type PackageType = 'regular' | 'dev' | 'peer';
+type SynthWorkbench = {
+	continuation: ContinuationTask[];
+};
+type SynthInput = {
+	type: PackageType;
+	packagesParsed: ParsedDependencies;
+	packagesSynth: RawDependencies;
+	parent?: RawPackageV1 | undefined;
+};
 
-const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[], input: ParsedDependencies, output: RawDependencies, parent?: RawPackageV1 | undefined) => {
-	for (const [name, parsed] of Object.entries(input)) {
+const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
+	const { type, packagesParsed, packagesSynth, parent } = input;
+
+	for (const [name, parsed] of Object.entries(packagesParsed)) {
 
 		const synthPackage = <RawPackageV1> {
 			version: parsed.version,
 			...(<InternalParsedPackage> parsed)[INTERNAL].unsupported
 		};
 
-		if (output[name] != null) {
+		if (packagesSynth[name] != null) {
 			if (parent == null) {
 				throw new Error('A parent was not provided when synthesizing, this is highly unexpected behavior!');
 			}
@@ -173,7 +196,7 @@ const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[],
 			parent.dependencies[name] = synthPackage;
 		}
 		else {
-			output[name] = synthPackage;
+			packagesSynth[name] = synthPackage;
 		}
 
 		switch (type) {
@@ -184,15 +207,15 @@ const synthPackages = (type: PackageType, continuationTasks: ContinuationTask[],
 
 		}
 
-		if (parsed.dependencies != null) {
-			continuationTasks.push(() => {
-				synthPackages('regular', continuationTasks, parsed.dependencies, output, synthPackage);
-			});
-		}
-
-		if (parsed.devDependencies != null) {
-			continuationTasks.push(() => {
-				synthPackages('dev', continuationTasks, parsed.dependencies, output, synthPackage);
+		const dependencies = parsed.dependencies ?? parsed.devDependencies;
+		if (dependencies != null) {
+			workbench.continuation.push(() => {
+				synthPackages(workbench, {
+					type: type,
+					packagesParsed: dependencies,
+					packagesSynth: packagesSynth,
+					parent: synthPackage
+				});
 			});
 		}
 	}
@@ -203,24 +226,34 @@ export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
 		lockfileVersion: parsed.version
 	};
 
-	const tasks: ContinuationTask[] = [];
+	const workbench: SynthWorkbench = {
+		continuation: []
+	};
 
 	if (parsed.dependencies != null) {
 		if (synthesized.dependencies == null) {
 			synthesized.dependencies = {};
 		}
-		synthPackages('regular', tasks, parsed.dependencies, synthesized.dependencies);
+		synthPackages(workbench, {
+			type: 'regular',
+			packagesParsed: parsed.dependencies,
+			packagesSynth: synthesized.dependencies
+		});
 	}
 
 	if (parsed.devDependencies != null) {
 		if (synthesized.dependencies == null) {
 			synthesized.dependencies = {};
 		}
-		synthPackages('dev', tasks, parsed.devDependencies, synthesized.dependencies);
+		synthPackages(workbench, {
+			type: 'dev',
+			packagesParsed: parsed.devDependencies,
+			packagesSynth: synthesized.dependencies
+		});
 	}
 
-	for (let i = 0; i < tasks.length; i++) {
-		const task = tasks[i];
+	for (let i = 0; i < workbench.continuation.length; i++) {
+		const task = workbench.continuation[i];
 		task();
 	}
 

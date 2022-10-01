@@ -115,6 +115,18 @@ describe('For v1 lockfiles', () => {
 			expect(rootDependantPackage).to.equal(nestedDependantPackage);
 		});
 
+		it('should not save dependencies of dev dependencies as dev dependencies', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedDev.v1(), <PackageJson> await lockfiles.nestedDev.packagefile());
+			expect(parsed).to.have.property('devDependencies');
+
+			const devDependencies = parsed.devDependencies;
+			expect(devDependencies).to.have.property('@package-lock-parser/test-resource-nested');
+
+			const testResourceNested = devDependencies['@package-lock-parser/test-resource-nested']!;
+			expect(testResourceNested).to.have.property('dependencies');
+			expect(testResourceNested).to.not.have.property('devDependencies');
+		});
+
 	});
 
 	describe('the synth() function', () => {
@@ -243,6 +255,22 @@ describe('For v1 lockfiles', () => {
 
 			const testResourcePureAlternate = testResourceAlternateDependencies['@package-lock-parser/test-resource-pure']!;
 			expect(testResourcePureAlternate.version).to.equal('1.0.0');
+		});
+
+		it('should synthesize packages as dev when another dev dependency depends on it', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedDev.v1(), <PackageJson> await lockfiles.nestedDev.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-pure');
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+
+			const testResourcePure = dependencies['@package-lock-parser/test-resource-pure']!;
+			const testResourceNested = dependencies['@package-lock-parser/test-resource-nested']!;
+
+			expect(testResourcePure.dev).to.equal(true);
+			expect(testResourceNested.dev).to.equal(true);
 		});
 
 	});
