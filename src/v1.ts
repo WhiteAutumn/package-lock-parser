@@ -167,6 +167,7 @@ export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): Parsed
 type PackageType = 'regular' | 'dev' | 'peer';
 type SynthWorkbench = {
 	continuation: ContinuationTask[];
+	dependencyLookup: Record<string, ParsedPackage>;
 };
 type SynthInput = {
 	type: PackageType;
@@ -186,6 +187,10 @@ const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
 		};
 
 		if (packagesSynth[name] != null) {
+			if (workbench.dependencyLookup[name] === parsed) {
+				continue;
+			}
+
 			if (parent == null) {
 				throw new Error('A parent was not provided when synthesizing, this is highly unexpected behavior!');
 			}
@@ -198,6 +203,7 @@ const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
 		}
 		else {
 			packagesSynth[name] = synthPackage;
+			workbench.dependencyLookup[name] = parsed;
 		}
 
 		switch (type) {
@@ -228,7 +234,8 @@ export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
 	};
 
 	const workbench: SynthWorkbench = {
-		continuation: []
+		continuation: [],
+		dependencyLookup: {}
 	};
 
 	if (parsed.dependencies != null) {

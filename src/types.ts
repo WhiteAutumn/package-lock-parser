@@ -9,7 +9,7 @@ export type PackageJson = {
 
 export type ParsedPackage = {
 	readonly name: string;
-	version: string;
+	readonly version: string;
 	dependencies?: Record<string, ParsedPackage>;
 	devDependencies?: Record<string, ParsedPackage>;
 };

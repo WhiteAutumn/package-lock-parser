@@ -310,5 +310,17 @@ describe('For v1 lockfiles', () => {
 			expect(testResourcePureAlternate).to.not.have.property('dev');
 		});
 
+		it('should synthesize package only once even when two references', async () => {
+			const parsed = parse(<RawLockfileV1> await lockfiles.nestedVersionMatch.v1(), <PackageJson> await lockfiles.nestedVersionMatch.packagefile());
+			const synthesized = synth(parsed);
+			expect(synthesized).to.have.property('dependencies');
+
+			const dependencies = synthesized.dependencies;
+			expect(dependencies).to.have.property('@package-lock-parser/test-resource-nested');
+
+			const testResourceNested = dependencies['@package-lock-parser/test-resource-nested']!;
+			expect(testResourceNested).to.not.have.property('dependencies');
+		});
+
 	});
 });
