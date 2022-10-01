@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import { Any } from '../types';
+import { Any } from '../../util/types';
 
 
 export type LockfileBundle = {

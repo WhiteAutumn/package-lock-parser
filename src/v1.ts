@@ -1,5 +1,5 @@
-import { PackageJson, ParsedLockfile, ParsedPackage, RawLockfileV1, RawPackageV1 } from './types';
-import { pick } from './util';
+import { PackageJson, ParsedLockfile, ParsedPackage, RawLockfileV1, RawPackageV1 } from './util/types';
+import { pick } from './util/misc';
 
 const INTERNAL = Symbol('package-lock-parser/internal');
 
