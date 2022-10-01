@@ -1,6 +1,6 @@
 {
-  "name": "@package-lock-parser/test-resource-pure",
-  "version": "3.0.0",
+  "name": "@package-lock-parser/test-resource-alternate-pure",
+  "version": "1.0.0",
   "description": "Internal test package used for package-lock-parser",
   "repository": {
     "type": "git",

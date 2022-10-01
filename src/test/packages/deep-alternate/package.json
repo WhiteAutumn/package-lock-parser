@@ -1,0 +1,13 @@
+{
+  "name": "@package-lock-parser/test-resource-deep-alternate",
+  "version": "2.0.0",
+  "description": "Internal test package used for package-lock-parser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/package-lock-parser.git"
+  },
+  "dependencies": {
+    "@package-lock-parser/test-resource-alternate-pure": "^1.0.0",
+    "@package-lock-parser/test-resource-pure": "^3.0.0"
+  }
+}

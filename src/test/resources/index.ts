@@ -1,16 +1,16 @@
 import path from 'path';
 import fs from 'fs';
 
-import { Any } from '../../util/types';
+import { Any, LockfileV1, PackageJson } from '../../util/types';
 
 
 export type LockfileBundle = {
-	v1: () => Promise<Any>;
+	v1: () => Promise<LockfileV1>;
 	v2: () => Promise<Any>;
-	packagefile: () => Promise<Any>;
+	packagefile: () => Promise<PackageJson>;
 };
 
-const dirname = path.join('.', 'src', 'test-resources');
+const dirname = path.join('.', 'src', 'test', 'resources');
 
 const loadLockfileBundle = (dir: string): LockfileBundle => {
 	const v1 = fs.promises.readFile(path.join(dirname, dir, 'v1.package-lock.json'))
@@ -36,6 +36,7 @@ export const lockfiles = {
 	basic: loadLockfileBundle('basic'),
 	basicDev: loadLockfileBundle('basic-dev'),
 	basicLocal: loadLockfileBundle('basic-local'),
+	deep: loadLockfileBundle('deep'),
 	nested: loadLockfileBundle('nested'),
 	nestedDev: loadLockfileBundle('nested-dev'),
 	nestedMixedDev: loadLockfileBundle('nested-mixed-dev'),
