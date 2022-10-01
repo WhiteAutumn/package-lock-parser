@@ -9,6 +9,6 @@
     "sourceMap": true,
 
     //Output
-    "outDir": "dist/test",
+    "declaration": true
   }
 }
