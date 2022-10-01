@@ -1,4 +1,4 @@
-import { PackageJson, ParsedLockfile, ParsedPackage, RawLockfileV1, RawPackageV1 } from './util/types';
+import { PackageJson, ParsedLockfile, ParsedPackage, LockfileV1, LockfilePackageV1 } from './util/types';
 import { pick } from './util/misc';
 
 const INTERNAL = Symbol('package-lock-parser/internal');
@@ -15,7 +15,7 @@ type InternalParsedLockfile = ParsedLockfile & {
 	};
 };
 
-type RawDependencies = Record<string, RawPackageV1>;
+type RawDependencies = Record<string, LockfilePackageV1>;
 type ParsedDependencies = Record<string, ParsedPackage>;
 type ContinuationTask = () => void;
 
@@ -42,7 +42,7 @@ const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseRes
 
 	for (const packageName of packageNames) {
 		
-		let rawPackage: RawPackageV1;
+		let rawPackage: LockfilePackageV1;
 		if (packageDataPrioritized?.[packageName] != null) {
 			rawPackage = packageDataPrioritized[packageName];
 		}
@@ -142,7 +142,7 @@ const parsePackages = (workbench: ParsingWorkbench, input: ParseInput): ParseRes
 	return result;
 };
 
-export const parse = (lockfile: RawLockfileV1, packagefile: PackageJson): ParsedLockfile => {
+export const parse = (lockfile: LockfileV1, packagefile: PackageJson): ParsedLockfile => {
 	const packages = [
 		...Object.keys(packagefile.dependencies ?? {}),
 		...Object.keys(packagefile.devDependencies ?? {})
@@ -185,7 +185,7 @@ type SynthInput = {
 	type: PackageType;
 	packagesParsed: ParsedDependencies;
 	packagesSynth: RawDependencies;
-	parent?: RawPackageV1 | undefined;
+	parent?: LockfilePackageV1 | undefined;
 };
 
 const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
@@ -193,7 +193,7 @@ const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
 
 	for (const [name, parsed] of Object.entries(packagesParsed)) {
 
-		const synthPackage = <RawPackageV1> {
+		const synthPackage = <LockfilePackageV1> {
 			version: parsed.version,
 			...(<InternalParsedPackage> parsed)[INTERNAL].unsupported
 		};
@@ -240,8 +240,8 @@ const synthPackages = (workbench: SynthWorkbench, input: SynthInput) => {
 	}
 };
 
-export const synth = (parsed: ParsedLockfile): RawLockfileV1 => {
-	const synthesized: RawLockfileV1 = {
+export const synth = (parsed: ParsedLockfile): LockfileV1 => {
+	const synthesized: LockfileV1 = {
 		lockfileVersion: parsed.version,
 		...(<InternalParsedLockfile> parsed)[INTERNAL].unsupported
 	};

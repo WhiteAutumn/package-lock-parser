@@ -7,6 +7,21 @@ export type PackageJson = {
 	devDependencies?: Record<string, string>;
 };
 
+export type LockfileV1 = {
+	lockfileVersion: number;
+	dependencies?: Record<string, LockfilePackageV1>;
+	requires?: boolean;
+};
+
+export type LockfilePackageV1 = {
+	version: string;
+	resolved: string;
+	integrity: string;
+	dev?: boolean;
+	requires?: Record<string, string>;
+	dependencies?: Record<string, LockfilePackageV1>;
+};
+
 export type ParsedPackage = {
 	readonly name: string;
 	readonly version: string;
@@ -18,19 +33,4 @@ export type ParsedLockfile = {
 	version: number;
 	dependencies?: Record<string, ParsedPackage>;
 	devDependencies?: Record<string, ParsedPackage>;
-};
-
-export type RawPackageV1 = {
-	version: string;
-	resolved: string;
-	integrity: string;
-	dev?: boolean;
-	requires?: Record<string, string>;
-	dependencies?: Record<string, RawPackageV1>;
-};
-
-export type RawLockfileV1 = {
-	lockfileVersion: number;
-	dependencies?: Record<string, RawPackageV1>;
-	requires?: boolean;
 };
