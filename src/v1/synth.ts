@@ -102,7 +102,7 @@ function synthPackage(workbench: SynthWorkbench, input: SynthInput): LockfilePac
 
 	const synthedPackage = makePackage(workbench, type, parsedPackage);
 
-	for (const [dependencyName, parsedDependency] of Object.entries(parsedPackage.dependencies)) {
+	for (const [dependencyName, parsedDependency] of alphabeticalEntries(parsedPackage.dependencies)) {
 		if (workbench.cache.has(parsedDependency)) {
 			const cacheHit = workbench.cache.get(parsedDependency);
 			ensureProperType(type, cacheHit);
@@ -153,7 +153,7 @@ export function synth(parsedLockfile: ParsedLockfile): LockfileV1 {
 	// Second pass, start recursion
 	const secondPass = (type: PackageType, dependencies: ParsedPackages) => {
 		for (const [packageName, parsedPackage] of alphabeticalEntries(dependencies)) {
-			for (const [dependencyName, parsedDependency] of Object.entries(parsedPackage.dependencies)) {
+			for (const [dependencyName, parsedDependency] of alphabeticalEntries(parsedPackage.dependencies)) {
 				const parentPackage = synthedLockfile.dependencies[packageName];
 
 				if (workbench.cache.has(parsedDependency)) {
