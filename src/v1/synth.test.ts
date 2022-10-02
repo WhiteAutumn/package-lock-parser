@@ -92,4 +92,32 @@ describe('The v1 synth() function', () => {
 		expect(actual).to.deep.equal(expected);
 	});
 
+	it('should order synthesized package properties in canonical order', async () => {
+		const parsed = parse(await lockfiles.nestedDev.v1(), await lockfiles.nestedDev.packagefile());
+		const synthed = synth(parsed);
+
+		const synthedPurePackage = synthed.dependencies['@package-lock-parser/test-resource-pure']!;
+		const synthedNestedPackage = synthed.dependencies['@package-lock-parser/test-resource-nested']!;
+		const actualPureKeys = Object.keys(synthedPurePackage);
+		const actualNestedKeys = Object.keys(synthedNestedPackage);
+
+		const expectedPureKeys = [
+			'version',
+			'resolved',
+			'integrity',
+			'dev'
+		];
+
+		const expectedNestedKeys = [
+			'version',
+			'resolved',
+			'integrity',
+			'dev',
+			'requires'
+		];
+
+		expect(actualPureKeys).to.deep.equal(expectedPureKeys);
+		expect(actualNestedKeys).to.deep.equal(expectedNestedKeys);
+	});
+
 });

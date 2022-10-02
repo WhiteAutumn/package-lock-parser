@@ -14,6 +14,38 @@ type SynthInput = {
 	parsedPackage: ParsedPackage;
 };
 
+const canonicalOrder = {
+	lockfile: [
+		'name',
+		'version',
+		'lockfileVersion',
+		'requires',
+		'dependencies'
+	],
+	package: [
+		'version',
+		'resolved',
+		'integrity',
+		'dev',
+		'requires'
+	]
+};
+
+function reorderObject(object: Record<string, unknown>, knownOrder: string[]) {
+	const keysWithoutKnownOrder = Object.keys(object)
+		.filter(it => !knownOrder.includes(it));
+
+	for (const key of [ ...knownOrder, ...keysWithoutKnownOrder ]) {
+		if (!(key in object)) {
+			continue;
+		}
+
+		const value = object[key];
+		delete object[key];
+		object[key] = value;
+	}
+}
+
 function alphabeticalEntries<T>(dependencies: Record<string, T>) {
 	const entries = Object.entries(dependencies);
 	entries.sort(([a], [b]) => a === b ? 0 : a < b ? -1 : 1);
@@ -43,6 +75,8 @@ function makePackage(workbench: SynthWorkbench, type: PackageType, parsedPackage
 			synthedPackage.peer = true;
 		}
 	}
+
+	reorderObject(synthedPackage, canonicalOrder.package);
 
 	workbench.cache.set(parsedPackage, synthedPackage);
 
@@ -148,6 +182,7 @@ export function synth(parsedLockfile: ParsedLockfile): LockfileV1 {
 	secondPass('peer', parsedLockfile.peerDependencies);
 
 	synthedLockfile.dependencies = Object.fromEntries(alphabeticalEntries(synthedLockfile.dependencies));
+	reorderObject(synthedLockfile, canonicalOrder.lockfile);
 
 	return synthedLockfile;
 }
