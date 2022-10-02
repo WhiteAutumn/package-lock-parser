@@ -18,7 +18,7 @@
   "exports": {
     ".": {
       "import": {
-        "types":"./dist/mjs/index.m.d.ts",
+        "types": "./dist/mjs/index.m.d.ts",
         "default": "./dist/mjs/index.m.js"
       },
       "require": {
