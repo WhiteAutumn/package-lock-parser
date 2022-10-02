@@ -107,7 +107,7 @@ function synthPackage(workbench: SynthWorkbench, input: SynthInput): LockfilePac
 			const cacheHit = workbench.cache.get(parsedDependency);
 			ensureProperType(type, cacheHit);
 
-			if (!(parsedPackage.name in lockfile.dependencies)) {
+			if (!(dependencyName in lockfile.dependencies)) {
 				savePackage(dependencyName, cacheHit, synthedPackage, lockfile);
 			}
 		}
@@ -160,7 +160,7 @@ export function synth(parsedLockfile: ParsedLockfile): LockfileV1 {
 					const cacheHit = workbench.cache.get(parsedDependency);
 					ensureProperType(type, cacheHit);
 
-					if (!(parsedPackage.name in synthedLockfile.dependencies)) {
+					if (!(dependencyName in synthedLockfile.dependencies)) {
 						savePackage(dependencyName, cacheHit, parentPackage, synthedLockfile);
 					}
 				}
