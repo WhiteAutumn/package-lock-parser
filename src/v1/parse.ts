@@ -11,17 +11,29 @@ type ParseWorkbench = {
 
 type ParseInput = {
 	name: string;
-	dependencies: LockfilePackages;
-	prioritizedDependencies?: LockfilePackages | undefined;
+	dependencyChain: LockfilePackages[];
 };
+
+function searchDependencyChain(name: string, chain: LockfilePackages[]) {
+	chain = chain
+		.filter(it => it != null);
+
+	for (const packages of chain) {
+		if (name in packages) {
+			return packages[name];
+		}
+	}
+
+	return null;
+}
 
 function parsePackage(workbench: ParseWorkbench, input: ParseInput): ParsedPackage {
 	
-	const { name, dependencies, prioritizedDependencies } = input;
-	const lockfilePackage = prioritizedDependencies?.[name] ?? dependencies[name];
+	const { name, dependencyChain } = input;
+	const lockfilePackage = searchDependencyChain(name, dependencyChain); 
 
 	if (lockfilePackage == null) {
-		throw new Error(`Could not find '${name} in lockfile, package.json may be out of sync!'`);
+		throw new Error(`Could not find '${name}' in lockfile, package-lock.json & package.json may be out of sync!'`);
 	}
 
 	const lookupKey = name + lockfilePackage.version;
@@ -50,8 +62,7 @@ function parsePackage(workbench: ParseWorkbench, input: ParseInput): ParsedPacka
 	for (const dependencyName of Object.keys(lockfilePackage.requires ?? EMPTY_OBJECT)) {
 		parsedPackage.dependencies[dependencyName] = parsePackage(workbench, {
 			name: dependencyName,
-			dependencies: dependencies,
-			prioritizedDependencies: lockfilePackage.dependencies
+			dependencyChain: [ lockfilePackage.dependencies, ...dependencyChain ]
 		});
 	}
 
@@ -80,14 +91,14 @@ export function parse(lockfile: LockfileV1, packagefile: PackageJson) {
 	for (const packageName of Object.keys(packagefile.dependencies ?? EMPTY_OBJECT)) {
 		parsedLockfile.dependencies[packageName] = parsePackage(workbench, {
 			name: packageName,
-			dependencies: lockfile.dependencies
+			dependencyChain: [lockfile.dependencies]
 		});
 	}
 
 	for (const packageName of Object.keys(packagefile.devDependencies ?? EMPTY_OBJECT)) {
 		parsedLockfile.devDependencies[packageName] = parsePackage(workbench, {
 			name: packageName,
-			dependencies: lockfile.dependencies
+			dependencyChain: [lockfile.dependencies]
 		});
 	}
 
