@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "dependencies": {
+    "@package-lock-parser/test-package-depth-0": "^1.0.0"
+  }
+}

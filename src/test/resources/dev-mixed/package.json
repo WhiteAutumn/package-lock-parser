@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "dependencies": {
+    "@package-lock-parser/test-package-beta": "^1.0.0"
+  },
+  "devDependencies": {
+    "@package-lock-parser/test-package-alpha": "^1.0.0"
+  }
+}

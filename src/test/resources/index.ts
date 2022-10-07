@@ -3,7 +3,6 @@ import fs from 'fs';
 
 import { Any, LockfileV1, PackageJson } from '../../util/types';
 
-
 export type LockfileBundle = {
 	v1: () => Promise<LockfileV1>;
 	v2: () => Promise<Any>;
@@ -30,16 +29,13 @@ const loadLockfileBundle = (dir: string): LockfileBundle => {
 };
 
 export const lockfiles = {
-	basic: loadLockfileBundle('basic'),
-	basicDev: loadLockfileBundle('basic-dev'),
-	basicLocal: loadLockfileBundle('basic-local'),
-	deep: loadLockfileBundle('deep'),
-	deeper: loadLockfileBundle('deeper'),
-	nested: loadLockfileBundle('nested'),
-	nestedDev: loadLockfileBundle('nested-dev'),
-	nestedMixedDev: loadLockfileBundle('nested-mixed-dev'),
-	nestedMixedDevReverse: loadLockfileBundle('nested-mixed-dev-reverse'),
-	nestedVersionMatch: loadLockfileBundle('nested-version-match'),
-	nestedVersionMismatch: loadLockfileBundle('nested-version-mismatch'),
-	nestedVersionMismatchAlternate: loadLockfileBundle('nested-version-mismatch-alternate')
+	deep1: loadLockfileBundle('deep-1'),
+	deep1Dev: loadLockfileBundle('deep-1-dev'),
+	deep2: loadLockfileBundle('deep-2'),
+	devMixed: loadLockfileBundle('dev-mixed'),
+	notAlphabetical: loadLockfileBundle('not-alphabetical'),
+	simple: loadLockfileBundle('simple'),
+	simpleDev: loadLockfileBundle('simple-dev'),
+	versionMatch: loadLockfileBundle('version-match'),
+	versionMismatch: loadLockfileBundle('version-mismatch')
 };
