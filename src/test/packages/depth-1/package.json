@@ -1,0 +1,12 @@
+{
+  "name": "@package-lock-parser/test-package-depth-1",
+  "version": "1.0.0",
+  "description": "Internal test package used for package-lock-parser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/package-lock-parser.git"
+  },
+  "dependencies": {
+    "@package-lock-parser/test-package-depth-0": "^1.0.0"
+  }
+}
