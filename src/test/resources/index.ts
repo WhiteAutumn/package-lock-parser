@@ -34,6 +34,7 @@ export const lockfiles = {
 	basicDev: loadLockfileBundle('basic-dev'),
 	basicLocal: loadLockfileBundle('basic-local'),
 	deep: loadLockfileBundle('deep'),
+	deeper: loadLockfileBundle('deeper'),
 	nested: loadLockfileBundle('nested'),
 	nestedDev: loadLockfileBundle('nested-dev'),
 	nestedMixedDev: loadLockfileBundle('nested-mixed-dev'),

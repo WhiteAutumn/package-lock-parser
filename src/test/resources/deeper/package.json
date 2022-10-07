@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@package-lock-parser/test-resource-deep": "^2.0.0",
+    "@package-lock-parser/test-resource-deep-alternate": "^3.0.0"
+  }
+}
