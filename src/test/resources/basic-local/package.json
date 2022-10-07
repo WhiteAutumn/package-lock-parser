@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@package-lock-parser/test-resource-pure": "file:../../test-packages/pure"
-  }
-}
