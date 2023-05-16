@@ -1,0 +1,13 @@
+{
+  "name": "package-lock-parser",
+  "volta": {
+    "node": "18.16.0",
+    "npm": "9.6.6"
+  },
+  "scripts": {
+    "generate-lockfiles": "node scripts/generate-lockfiles.mjs"
+  },
+  "devDependencies": {
+    "p-limit": "~4.0.0"
+  }
+}

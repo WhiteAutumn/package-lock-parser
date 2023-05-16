@@ -1,0 +1,15 @@
+{
+  "name": "@package-lock-parser/simple-example-package-2",
+  "version": "2.0.0",
+  "description": "Internal example package for creating arbitrary package-lock.json files",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/package-lock-parser.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@package-lock-parser/simple-example-package-1": "2.0.0"
+  }
+}
