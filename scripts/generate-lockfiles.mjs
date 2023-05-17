@@ -71,7 +71,10 @@ const generateLockfile = async ({ originalPath, rawPackageFile }, lockfileVersio
       break;
   }
 
-  await exec(`npx npm@${npmVersion} install`, { cwd: dir, stdio: 'inherit' });
+  await exec(`npx npm@${npmVersion} install`, { cwd: dir, stdio: 'inherit', env: {
+    ...process.env,
+    npm_update_notifier: 'false',
+  } });
 
   const lockfile = await fs.readFile(path.join(dir, 'package-lock.json'));
   await fs.writeFile(path.join(originalPath, `package-lock.v${lockfileVersion}.json`), lockfile);
@@ -86,3 +89,6 @@ const generateLockfiles = async (inputData) => {
 };
 
 await Promise.all(inputData.map(generateLockfiles));
+
+const sampleDirIndex = Object.fromEntries(sampleDirs.map(dir => [dir, null]));
+await fs.writeFile(path.join(samplesDir, 'index.json'),JSON.stringify(sampleDirIndex, null, 2));
