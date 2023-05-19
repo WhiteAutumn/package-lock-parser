@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "optionalDependencies": {
+    "@package-lock-parser/simple-example-package-1": "1.0.0"
+  }
+}
