@@ -7,6 +7,7 @@
   "scripts": {
     "test": "mocha --colors .",
     "test:watch": "mocha --colors --watch .",
+    "check:types": "tsc --noEmit --pretty",
     "generate-lockfiles": "node scripts/generate-lockfiles.mjs"
   },
   "devDependencies": {
