@@ -8,14 +8,18 @@
     "test": "mocha --colors .",
     "test:watch": "mocha --colors --watch .",
     "check:types": "tsc --noEmit --pretty",
+    "check:lint": "eslint **/*.ts",
     "generate-lockfiles": "node scripts/generate-lockfiles.mjs"
   },
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "chai": "^4.0.0",
     "esbuild-runner": "^2.0.0",
+    "eslint": "^8.0.0",
     "mocha": "^10.0.0",
     "p-limit": "~4.0.0",
     "typescript": "~5.0.0"
